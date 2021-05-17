@@ -1,0 +1,15 @@
+version: '3.5'
+services:
+  
+  redis:
+    image: redis:6
+    container_name: gokvs_test_redis
+    networks:
+      - gokvs_test_net
+    ports:
+      - 59011:6379
+  
+networks:
+  gokvs_test_net:
+    name: gokvs_test_net
+    driver: bridge
