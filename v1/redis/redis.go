@@ -24,7 +24,7 @@ func New(dsn string, opts ...Option) (*Store, error) {
 		return nil, err
 	}
 	if u.Scheme != Scheme {
-		return nil, kvs.ErrInvalidDSN
+		return nil, errors.Wrapf(kvs.ErrInvalidDSN, "Unsupported scheme: %s (expected: %s)", u.Scheme, Scheme)
 	}
 	var db int
 	if p := u.Path; p != "" && p != "/" {
