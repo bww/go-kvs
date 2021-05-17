@@ -14,7 +14,7 @@ import (
 func TestRedisCRUD(t *testing.T) {
 	var res []byte
 
-	store, err := New(WithAddr("localhost:59011"))
+	store, err := New("redis://localhost:59011/")
 	if !assert.Nil(t, err, fmt.Sprint(err)) {
 		return
 	}

@@ -2,6 +2,9 @@ package redis
 
 import (
 	"context"
+	"net/url"
+	"path"
+	"strconv"
 
 	"github.com/bww/go-kvs/v1"
 
@@ -9,12 +12,28 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+const Scheme = "redis"
+
 type Store struct {
 	*redis.Client
 }
 
-func New(opts ...Option) (*Store, error) {
-	return NewWithConfig(Config{Addr: "localhost:6379"}.WithOptions(opts...))
+func New(dsn string, opts ...Option) (*Store, error) {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return nil, err
+	}
+	if u.Scheme != Scheme {
+		return nil, kvs.ErrInvalidDSN
+	}
+	var db int
+	if p := u.Path; p != "" && p != "/" {
+		db, err = strconv.Atoi(path.Base(p))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return NewWithConfig(Config{Addr: u.Host, Database: db}.WithOptions(opts...))
 }
 
 func NewWithConfig(conf Config) (*Store, error) {

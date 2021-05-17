@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("Not found")
+	ErrNotFound   = errors.New("Not found")
+	ErrInvalidDSN = errors.New("Invalid DSN")
 )
 
 type Store interface {
