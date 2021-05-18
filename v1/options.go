@@ -16,7 +16,8 @@ func (c ReadConfig) WithOptions(opts ...ReadOption) ReadConfig {
 type ReadOption func(ReadConfig) ReadConfig
 
 type WriteConfig struct {
-	TTL time.Duration
+	TTL        time.Duration
+	Expiration time.Time
 }
 
 func (c WriteConfig) WithOptions(opts ...WriteOption) WriteConfig {
@@ -31,6 +32,13 @@ type WriteOption func(WriteConfig) WriteConfig
 func WithTTL(ttl time.Duration) WriteOption {
 	return func(c WriteConfig) WriteConfig {
 		c.TTL = ttl
+		return c
+	}
+}
+
+func WithExpiration(when time.Time) WriteOption {
+	return func(c WriteConfig) WriteConfig {
+		c.Expiration = when
 		return c
 	}
 }

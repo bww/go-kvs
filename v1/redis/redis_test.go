@@ -37,4 +37,16 @@ func TestRedisCRUD(t *testing.T) {
 	assert.Nil(t, err, fmt.Sprint(err))
 	_, err = store.Get(context.Background(), "b")
 	assert.Equal(t, true, errors.Is(err, kvs.ErrNotFound))
+
+	inc, err := store.Inc(context.Background(), "c", 3)
+	if assert.Nil(t, err, fmt.Sprint(err)) {
+		assert.Equal(t, int64(3), inc)
+	}
+	inc, err = store.Inc(context.Background(), "c", 1)
+	if assert.Nil(t, err, fmt.Sprint(err)) {
+		assert.Equal(t, int64(4), inc)
+	}
+
+	err = store.Delete(context.Background(), "c")
+	assert.Nil(t, err, fmt.Sprint(err))
 }

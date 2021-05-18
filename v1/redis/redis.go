@@ -60,6 +60,21 @@ func (s *Store) Set(cxt context.Context, key string, val []byte, opts ...kvs.Wri
 	return s.Client.Set(cxt, key, string(val), conf.TTL).Err()
 }
 
+func (s *Store) Inc(cxt context.Context, key string, inc int64, opts ...kvs.WriteOption) (int64, error) {
+	conf := kvs.WriteConfig{}.WithOptions(opts...)
+	val, err := s.Client.IncrBy(cxt, key, inc).Result()
+	if err != nil {
+		return -1, err
+	}
+	if conf.TTL > 0 {
+		err = s.Client.Expire(cxt, key, conf.TTL).Err()
+		if err != nil {
+			return -1, err
+		}
+	}
+	return val, nil
+}
+
 func (s *Store) Delete(cxt context.Context, key string, opts ...kvs.WriteOption) error {
 	return s.Client.Del(cxt, key).Err()
 }
