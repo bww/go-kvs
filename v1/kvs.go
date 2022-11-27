@@ -20,5 +20,6 @@ type Store interface {
 	Keys(cxt context.Context, opts ...ReadOption) (Iter[string], error)
 	Get(cxt context.Context, key string, opts ...ReadOption) ([]byte, error)
 	Set(cxt context.Context, key string, val []byte, opts ...WriteOption) error
+	Inc(cxt context.Context, key string, inc int64, opts ...WriteOption) (int64, error)
 	Delete(cxt context.Context, key string, opts ...WriteOption) error
 }
