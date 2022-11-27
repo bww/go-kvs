@@ -105,8 +105,12 @@ func TestRedisKeys(t *testing.T) {
 	}
 	assert.Len(t, expect, 0)
 
-	for _, e := range allkeys {
-		err = store.Delete(context.Background(), e)
-		assert.Nil(t, err, fmt.Sprint(err))
+	kit, err = store.Keys(context.Background())
+	for {
+		key, err := kit.Next()
+		if err == kvs.ErrClosed {
+			break
+		}
+		store.Delete(context.Background(), key)
 	}
 }
