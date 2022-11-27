@@ -64,7 +64,7 @@ func TestRedisKeys(t *testing.T) {
 		assert.Nil(t, err, fmt.Sprint(err))
 	}
 
-	expect = resultSet("a.1", "a.2", "b.1", "b.2")
+	expect = resultSet(allkeys...)
 	kit, err := store.Keys(context.Background())
 	for {
 		val, err := kit.Next()
