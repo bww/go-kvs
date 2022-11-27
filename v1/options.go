@@ -4,7 +4,9 @@ import (
 	"time"
 )
 
-type ReadConfig struct{}
+type ReadConfig struct {
+	Prefix string
+}
 
 func (c ReadConfig) WithOptions(opts ...ReadOption) ReadConfig {
 	for _, opt := range opts {
@@ -14,6 +16,13 @@ func (c ReadConfig) WithOptions(opts ...ReadOption) ReadConfig {
 }
 
 type ReadOption func(ReadConfig) ReadConfig
+
+func WithPrefix(pfx string) ReadOption {
+	return func(c ReadConfig) ReadConfig {
+		c.Prefix = pfx
+		return c
+	}
+}
 
 type WriteConfig struct {
 	TTL time.Duration

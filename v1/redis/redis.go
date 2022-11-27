@@ -45,6 +45,20 @@ func NewWithConfig(conf Config) (*Store, error) {
 	return &Store{rdb}, nil
 }
 
+func (s *Store) Keys(cxt context.Context, opts ...kvs.ReadOption) (kvs.Iter[string], error) {
+	conf := kvs.ReadConfig{}.WithOptions(opts...)
+	var it *redis.ScanIterator
+	if pfx := conf.Prefix; pfx != "" {
+		it = s.Client.Scan(cxt, 0, "prefix:"+pfx, 0).Iterator()
+	} else {
+		it = s.Client.Scan(cxt, 0, "", 0).Iterator()
+	}
+	return scanIter{
+		cxt:  cxt,
+		iter: it,
+	}, nil
+}
+
 func (s *Store) Get(cxt context.Context, key string, opts ...kvs.ReadOption) ([]byte, error) {
 	val, err := s.Client.Get(cxt, key).Result()
 	if err == redis.Nil {
