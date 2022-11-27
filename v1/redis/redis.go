@@ -49,7 +49,7 @@ func (s *Store) Keys(cxt context.Context, opts ...kvs.ReadOption) (kvs.Iter[stri
 	conf := kvs.ReadConfig{}.WithOptions(opts...)
 	var it *redis.ScanIterator
 	if pfx := conf.Prefix; pfx != "" {
-		it = s.Client.Scan(cxt, 0, "prefix:"+pfx, 0).Iterator()
+		it = s.Client.Scan(cxt, 0, pfx+"*", 0).Iterator()
 	} else {
 		it = s.Client.Scan(cxt, 0, "", 0).Iterator()
 	}
