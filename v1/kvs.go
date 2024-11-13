@@ -6,10 +6,11 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("Not found")
-	ErrInvalidDSN   = errors.New("Invalid DSN")
-	ErrNotSupported = errors.New("Not supported")
-	ErrClosed       = errors.New("Result set closed")
+	ErrNotFound         = errors.New("Not found")
+	ErrInvalidDSN       = errors.New("Invalid DSN")
+	ErrNotSupported     = errors.New("Not supported")
+	ErrClosed           = errors.New("Result set closed")
+	ErrExceededCapacity = errors.New("Exceeded capacity")
 )
 
 type Iter[T any] interface {
