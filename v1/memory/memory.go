@@ -68,7 +68,7 @@ func (s *Store) Len() int64 {
 
 func (s *Store) Cap() (uint64, uint64) {
 	if s.Bytes <= 0 {
-		return 0, 0
+		return 0, 0 // capacity is not limited; return zeros
 	}
 	s.Lock()
 	n := s.nbytes
