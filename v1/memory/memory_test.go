@@ -65,7 +65,7 @@ func TestMemoryEviction(t *testing.T) {
 	var res []byte
 
 	c := uint64(128)
-	store, err := New("memory:", WithBytes(c))
+	store, err := New("memory:", WithMaxBytes(c))
 	if !assert.Nil(t, err, fmt.Sprint(err)) {
 		return
 	}

@@ -3,9 +3,9 @@ package memory
 import "time"
 
 type Config struct {
-	Keys  uint64 // maximum keys allowed
-	Bytes uint64 // maximum bytes allowed
-	TTL   time.Duration
+	MaxKeys  uint64 // maximum keys allowed
+	MaxBytes uint64 // maximum bytes allowed
+	TTL      time.Duration
 }
 
 func (c Config) WithOptions(opts ...Option) Config {
@@ -17,16 +17,16 @@ func (c Config) WithOptions(opts ...Option) Config {
 
 type Option func(Config) Config
 
-func WithKeys(n uint64) Option {
+func WithMaxKeys(n uint64) Option {
 	return func(c Config) Config {
-		c.Keys = n
+		c.MaxKeys = n
 		return c
 	}
 }
 
-func WithBytes(n uint64) Option {
+func WithMaxBytes(n uint64) Option {
 	return func(c Config) Config {
-		c.Bytes = n
+		c.MaxBytes = n
 		return c
 	}
 }

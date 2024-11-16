@@ -37,7 +37,7 @@ func New(dsn string, opts ...Option) (*Store, error) {
 
 func NewWithConfig(conf Config) (*Store, error) {
 	s := &Store{Config: conf}
-	s.cache = expirable.NewLRU[string, []byte](int(conf.Keys), s.evict, conf.TTL)
+	s.cache = expirable.NewLRU[string, []byte](int(conf.MaxKeys), s.evict, conf.TTL)
 	return s, nil
 }
 
@@ -54,7 +54,7 @@ func (s *Store) evict(_ string, v []byte) {
 // If not, it returns false.
 func (s *Store) alloc(n uint64) (res bool) {
 	s.Lock()
-	res = s.Bytes <= 0 || (s.nbytes+n) <= s.Bytes
+	res = s.MaxBytes <= 0 || (s.nbytes+n) <= s.MaxBytes
 	if res {
 		s.nbytes += n
 	}
@@ -67,13 +67,13 @@ func (s *Store) Len() int64 {
 }
 
 func (s *Store) Cap() (uint64, uint64) {
-	if s.Bytes <= 0 {
+	if s.MaxBytes <= 0 {
 		return 0, 0 // capacity is not limited; return zeros
 	}
 	s.Lock()
 	n := s.nbytes
 	s.Unlock()
-	return s.Bytes, n
+	return s.MaxBytes, n
 }
 
 func (s *Store) Keys(cxt context.Context, opts ...kvs.ReadOption) (kvs.Iter[string], error) {
@@ -103,7 +103,7 @@ func (s *Store) Set(cxt context.Context, key string, val []byte, opts ...kvs.Wri
 	// If we have a memory consumption limit, make a limitied number of attempts
 	// to free enough capacity for the insertion. If we cannot do so, the
 	// insertion fails.
-	if s.Bytes > 0 {
+	if s.MaxBytes > 0 {
 		for i := 0; ; i++ {
 			if !s.alloc(uint64(len(val))) {
 				if i < maxAttempts && s.cache.Len() > 0 {
