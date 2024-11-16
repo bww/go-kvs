@@ -49,8 +49,8 @@ func (s *Store) evict(_ string, v []byte) {
 	s.Unlock()
 }
 
-// alloc determines if there is sufficient alloc to store the specified
-// number of bytes. If so, it increments the consumed alloc and returns true.
+// alloc determines if there is sufficient capacity to store the specified
+// number of bytes. If so, it increments the consumed capacity and returns true.
 // If not, it returns false.
 func (s *Store) alloc(n uint64) (res bool) {
 	s.Lock()
