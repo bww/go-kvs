@@ -110,7 +110,7 @@ func (s *Store) Set(cxt context.Context, key string, val []byte, opts ...kvs.Wri
 					s.cache.RemoveOldest()
 					continue // remove the oldest element and try again...
 				} else {
-					return kvs.ErrExceededCapacity
+					return kvs.ErrCapacityExceeded
 				}
 			}
 			break // ok, we have room

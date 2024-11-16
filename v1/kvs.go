@@ -10,7 +10,7 @@ var (
 	ErrInvalidDSN       = errors.New("Invalid DSN")
 	ErrNotSupported     = errors.New("Not supported")
 	ErrClosed           = errors.New("Result set closed")
-	ErrExceededCapacity = errors.New("Exceeded capacity")
+	ErrCapacityExceeded = errors.New("Exceeded capacity")
 )
 
 type Iter[T any] interface {
