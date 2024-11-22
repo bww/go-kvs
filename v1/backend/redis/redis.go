@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"path"
 	"strconv"
@@ -16,6 +17,7 @@ const Scheme = "redis"
 
 type Store struct {
 	*redis.Client
+	Config
 }
 
 func New(dsn string, opts ...Option) (*Store, error) {
@@ -42,7 +44,14 @@ func NewWithConfig(conf Config) (*Store, error) {
 		Password: conf.Password,
 		DB:       conf.Database,
 	})
-	return &Store{rdb}, nil
+	return &Store{
+		Client: rdb,
+		Config: conf,
+	}, nil
+}
+
+func (s *Store) String() string {
+	return fmt.Sprintf("Redis @ %v/%d", s.Addr, s.Database)
 }
 
 func (s *Store) Keys(cxt context.Context, opts ...kvs.ReadOption) (kvs.Iter[string], error) {

@@ -2,6 +2,7 @@ package backend
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/bww/go-kvs/v1"
@@ -24,6 +25,6 @@ func New(dsn string) (kvs.Store, error) {
 	case redis.Scheme:
 		return redis.New(dsn)
 	default:
-		return nil, errUnsupported
+		return nil, fmt.Errorf("%w: %s", errUnsupported, dsn)
 	}
 }

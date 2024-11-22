@@ -4,13 +4,16 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/bww/go-kvs/v1"
-	"github.com/hashicorp/golang-lru/v2/expirable"
 
 	"github.com/bww/go-util/v1/errors"
+	"github.com/bww/go-util/v1/ext"
+	"github.com/dustin/go-humanize"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 )
 
 const Scheme = "memory"
@@ -25,20 +28,54 @@ type Store struct {
 }
 
 func New(dsn string, opts ...Option) (*Store, error) {
-	u, err := url.Parse(dsn)
-	if err != nil {
-		return nil, err
+	var keys int64
+	var bytes uint64
+	if strings.Index(dsn, ":") > 0 {
+		u, err := url.Parse(dsn)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid DSN: %w", err)
+		}
+		q := u.Query()
+		if v := q.Get("keys"); v != "" {
+			keys, err = strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("Invalid key count: %w", err)
+			}
+		}
+		if v := q.Get("bytes"); v != "" {
+			bytes, err = humanize.ParseBytes(v)
+			if err != nil {
+				return nil, fmt.Errorf("Invalid storage size: %w", err)
+			}
+		}
 	}
-	if u.Scheme != Scheme {
-		return nil, fmt.Errorf("%w: expected scheme: %s (got: '%s' in '%s')", kvs.ErrInvalidDSN, Scheme, u.Scheme, dsn)
-	}
-	return NewWithConfig(Config{}.WithOptions(opts...))
+	return NewWithConfig(Config{
+		MaxKeys:  uint64(keys),
+		MaxBytes: bytes,
+	}.WithOptions(opts...))
 }
 
 func NewWithConfig(conf Config) (*Store, error) {
 	s := &Store{Config: conf}
 	s.cache = expirable.NewLRU[string, []byte](int(conf.MaxKeys), s.evict, conf.TTL)
 	return s, nil
+}
+
+func (s *Store) String() string {
+	var sb strings.Builder
+	var n int
+	sb.WriteString("Memory")
+	if s.MaxKeys > 0 {
+		sb.WriteString(ext.Choose(n == 0, ": ", ", "))
+		sb.WriteString(fmt.Sprintf("keys=%d", s.MaxKeys))
+		n++
+	}
+	if s.MaxBytes > 0 {
+		sb.WriteString(ext.Choose(n == 0, ": ", ", "))
+		sb.WriteString(fmt.Sprintf("bytes=%s", humanize.Bytes(s.MaxBytes)))
+		n++
+	}
+	return sb.String()
 }
 
 // evict is called by LRU when an element is evict. We updated our

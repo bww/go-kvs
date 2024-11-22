@@ -3,6 +3,7 @@ package kvs
 import (
 	"context"
 	"errors"
+	"fmt"
 )
 
 var (
@@ -18,6 +19,7 @@ type Iter[T any] interface {
 }
 
 type Store interface {
+	fmt.Stringer
 	Keys(cxt context.Context, opts ...ReadOption) (Iter[string], error)
 	Get(cxt context.Context, key string, opts ...ReadOption) ([]byte, error)
 	Set(cxt context.Context, key string, val []byte, opts ...WriteOption) error
