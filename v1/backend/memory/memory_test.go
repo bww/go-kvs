@@ -192,4 +192,18 @@ func TestMemoryInc(t *testing.T) {
 		assert.Equal(t, int64(3), res)
 	}
 
+	work := make(chan int)
+	go consumer(t, store, work)
+	go consumer(t, store, work)
+	for i := 0; i < 1000; i++ {
+		work <- i
+	}
+	close(work)
+}
+
+func consumer(t *testing.T, store *Store, work <-chan int) {
+	for range work {
+		_, err := store.Inc(context.Background(), "a", 1)
+		assert.NoError(t, err)
+	}
 }
