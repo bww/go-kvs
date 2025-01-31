@@ -170,3 +170,26 @@ func TestMemoryKeys(t *testing.T) {
 		store.Delete(context.Background(), key)
 	}
 }
+
+func TestMemoryInc(t *testing.T) {
+	var res int64
+
+	store, err := New("memory:")
+	if !assert.Nil(t, err, fmt.Sprint(err)) {
+		return
+	}
+
+	res, err = store.Inc(context.Background(), "a", 1)
+	if assert.NoError(t, err) {
+		assert.Equal(t, int64(1), res)
+	}
+	res, err = store.Inc(context.Background(), "a", 1)
+	if assert.NoError(t, err) {
+		assert.Equal(t, int64(2), res)
+	}
+	res, err = store.Inc(context.Background(), "a", 1)
+	if assert.NoError(t, err) {
+		assert.Equal(t, int64(3), res)
+	}
+
+}

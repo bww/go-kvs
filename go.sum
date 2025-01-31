@@ -1,5 +1,7 @@
 github.com/bww/go-util v1.45.2 h1:KfHvi8Ewe8jRlDgDuSB4V0DNCaIz8z+8Uodd6KOqiaI=
 github.com/bww/go-util v1.45.2/go.mod h1:c418EBQ2i2EY5p+KVNSWn2F9HRGOpY9ctkp22pXD8es=
+github.com/bww/golang-lru/v2 v2.0.1 h1:dZgbUV65r8P4Af8Fyo0KD/ZoGIdUbAEf9iE/R5Tj2rQ=
+github.com/bww/golang-lru/v2 v2.0.1/go.mod h1:hr0LMd82frKC4JOV3WiV29urmiQjmqNt0ShbY1ZhRKo=
 github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cbYE=
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

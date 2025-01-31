@@ -1,7 +1,9 @@
 package memory
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -10,15 +12,16 @@ import (
 
 	"github.com/bww/go-kvs/v1"
 
-	"github.com/bww/go-util/v1/errors"
 	"github.com/bww/go-util/v1/ext"
+	"github.com/bww/golang-lru/v2/expirable"
 	"github.com/dustin/go-humanize"
-	"github.com/hashicorp/golang-lru/v2/expirable"
 )
 
 const Scheme = "memory"
 
 const maxAttempts = 10
+
+var errCompareFailed = errors.New("Comparison failed")
 
 type Store struct {
 	Config
@@ -131,7 +134,7 @@ func (s *Store) Keys(cxt context.Context, opts ...kvs.ReadOption) (kvs.Iter[stri
 func (s *Store) Get(cxt context.Context, key string, opts ...kvs.ReadOption) ([]byte, error) {
 	val, ok := s.cache.Get(key)
 	if !ok {
-		return nil, errors.Wrapf(kvs.ErrNotFound, "Not found: %s", key)
+		return nil, fmt.Errorf("Not found: %s: %w", key, kvs.ErrNotFound)
 	}
 	return val, nil
 }
@@ -158,7 +161,33 @@ func (s *Store) Set(cxt context.Context, key string, val []byte, opts ...kvs.Wri
 }
 
 func (s *Store) Inc(cxt context.Context, key string, inc int64, opts ...kvs.WriteOption) (int64, error) {
-	return -1, kvs.ErrNotSupported
+	var (
+		sum int64
+		err error
+	)
+	val, ok := s.cache.Get(key)
+	if !ok {
+		val = []byte("0") // initialize to implied zero value
+	}
+	for i := 0; i < maxAttempts; i++ {
+		sum, err = strconv.ParseInt(string(val), 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("Incremented value must be an integer: %s: %w", key, err)
+		}
+		sum += inc // increment by the specified amount
+		_, err = s.cache.Swap(key, []byte(strconv.FormatInt(sum, 10)), func(prev, curr []byte) error {
+			if bytes.Compare(prev, val) != 0 {
+				val = prev // update the current value for the next attempt
+				return errCompareFailed
+			}
+			return nil
+		})
+		if err == errCompareFailed {
+			continue
+		}
+		break
+	}
+	return sum, nil
 }
 
 func (s *Store) Delete(cxt context.Context, key string, opts ...kvs.WriteOption) error {
