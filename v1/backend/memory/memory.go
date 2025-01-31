@@ -169,6 +169,9 @@ func (s *Store) Inc(cxt context.Context, key string, inc int64, opts ...kvs.Writ
 	if !ok {
 		val = []byte("0") // initialize to implied zero value
 	}
+	// We attempt up to the maximum number of times to perform a compare-and-swap
+	// update for the key. If this key is under heavy contention, it is possible
+	// this operation may ultimately fail.
 	for i := 0; i < maxAttempts; i++ {
 		sum, err = strconv.ParseInt(string(val), 10, 64)
 		if err != nil {
